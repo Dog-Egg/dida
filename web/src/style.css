@@ -1,0 +1,19 @@
+body {
+  padding: 30px;
+  width: 90%;
+  margin: auto;
+}
+
+.fixed-widget {
+  position: fixed;
+  right: 35px;
+  bottom: 105px;
+}
+
+.interval-field {
+  display: flex;
+}
+
+.interval-field > * + * {
+  margin-left: 5px;
+}
