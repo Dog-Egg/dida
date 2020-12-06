@@ -15,3 +15,8 @@ dida init
 # run web server
 dida run
 ```
+
+## TODO
+
+- [ ] New schedule
+- [ ] Function parameter type
