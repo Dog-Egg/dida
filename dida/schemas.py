@@ -105,8 +105,9 @@ class JobSchema(Schema):
     @pre_load
     def pre_load(self, in_data, **_):
         func = in_data['func']
-        in_data['kwargs'] = func['params']
-        del func['params']
+        if 'params' in func:
+            in_data['kwargs'] = func['params']
+            del func['params']
         return in_data
 
     @post_dump
