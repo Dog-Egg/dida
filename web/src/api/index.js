@@ -1,5 +1,9 @@
 import request from "../request";
 
+export function getDaemon() {
+  return request({ url: "/daemon" });
+}
+
 export function getScheduler() {
   return request({
     url: "/scheduler"

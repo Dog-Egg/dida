@@ -16,7 +16,10 @@ import {
   Input,
   DatePicker,
   InputNumber,
-  Switch
+  Switch,
+  Statistic,
+  Row,
+  Col
 } from "antd";
 import {
   EditOutlined,
@@ -32,6 +35,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      daemon: {},
       scheduler: {},
       functions: [],
       jobs: [],
@@ -58,6 +62,10 @@ export default class App extends React.Component {
 
     api.getFunctions().then(resp => {
       this.setState({ functions: resp.data.functions });
+    });
+
+    api.getDaemon().then(resp => {
+      this.setState({ daemon: resp.data });
     });
 
     this.updateJobs();
@@ -92,7 +100,23 @@ export default class App extends React.Component {
   render() {
     return (
       <>
-        <h1>Dida 任务管理</h1>
+        <Row style={{ marginBottom: "10px" }} align="middle">
+          <Col span={12}>
+            <h1>Dida 任务管理</h1>
+          </Col>
+          <Col span={3} offset={6}>
+            <Statistic
+              title="线程数"
+              value={this.state.daemon["thread_count"]}
+            />
+          </Col>
+          <Col span={3}>
+            <Statistic
+              title="子进程数"
+              value={this.state.daemon["subprocess_count"]}
+            />
+          </Col>
+        </Row>
         <Card hoverable bodyStyle={{ padding: 0 }}>
           <Table dataSource={this.state.jobs} pagination={false} rowKey="id">
             <Table.Column title="名称" dataIndex="name" />

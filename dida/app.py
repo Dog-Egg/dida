@@ -1,4 +1,6 @@
 import json
+import threading
+import multiprocessing
 
 from marshmallow import ValidationError
 from apscheduler.job import Job
@@ -20,6 +22,12 @@ class RequestHandler(BaseRequestHandler):
             return json_decode(self.request.body)
         except json.JSONDecodeError:
             raise HTTPError(400, "Expect to accept a JSON.")
+
+
+class DaemonApi(RequestHandler):
+    def get(self):
+        daemon = dict(thread_count=threading.active_count(), subprocess_count=len(multiprocessing.active_children()))
+        self.finish(daemon)
 
 
 class SchedulerApi(RequestHandler):
@@ -115,6 +123,7 @@ def make_app(debug=False):
     return Application([
         (r'/', RedirectHandler, dict(url='/web/', permanent=False)),
         (r'/web/(.*)', StaticFileHandler, dict(path=static_path, default_filename='index.html')),
+        (r'/api/daemon', DaemonApi),
         (r'/api/scheduler', SchedulerApi),
         (r'/api/scheduler/actions/(?P<action>.*)', SchedulerActionsApi),
         (r'/api/jobs', JobsApi),
