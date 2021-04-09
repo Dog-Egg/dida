@@ -4,13 +4,13 @@ import multiprocessing
 
 from marshmallow import ValidationError
 from apscheduler.job import Job
-from tornado import gen
 from tornado.escape import json_decode
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler as BaseRequestHandler, HTTPError, RedirectHandler, StaticFileHandler
 
 from dida.schemas import JobSchema, FunctionSchema, SchedulerSchema
-from dida.core import Function, scheduler
+from dida.core import Function
+from dida.scheduler import scheduler
 
 
 class RequestHandler(BaseRequestHandler):
@@ -32,24 +32,6 @@ class DaemonApi(RequestHandler):
 
 class SchedulerApi(RequestHandler):
     def get(self):
-        self.write(SchedulerSchema().dump(scheduler))
-
-
-class SchedulerActionsApi(RequestHandler):
-    @gen.coroutine
-    def post(self, action):
-        if action == 'start':
-            scheduler.start()
-        elif action == 'shutdown':
-            scheduler.shutdown()
-            yield
-        elif action == 'pause':
-            scheduler.pause()
-        elif action == 'resume':
-            scheduler.resume()
-        else:
-            raise HTTPError(404)
-
         self.write(SchedulerSchema().dump(scheduler))
 
 
@@ -118,6 +100,10 @@ class FunctionsApi(RequestHandler):
 def make_app(debug=False):
     import os
 
+    from tornado.log import enable_pretty_logging
+
+    enable_pretty_logging()
+
     static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'web'))
 
     return Application([
@@ -125,7 +111,6 @@ def make_app(debug=False):
         (r'/web/(.*)', StaticFileHandler, dict(path=static_path, default_filename='index.html')),
         (r'/api/daemon', DaemonApi),
         (r'/api/scheduler', SchedulerApi),
-        (r'/api/scheduler/actions/(?P<action>.*)', SchedulerActionsApi),
         (r'/api/jobs', JobsApi),
         (r'/api/jobs/(?P<job_id>[^/]*)', JobApi),
         (r'/api/jobs/(?P<job_id>.*)/actions/(?P<action>.*)', JobActionsApi),
@@ -134,19 +119,6 @@ def make_app(debug=False):
 
 
 if __name__ == '__main__':
-    import dida
-
-
-    @dida.job
-    def test_func1(a):
-        print('func1 working')
-
-
-    @dida.job
-    def test_func2(a, b: int = 2):
-        print('func2 working')
-
-
     app = make_app(debug=True)
     app.listen(8888)
     IOLoop.current().start()

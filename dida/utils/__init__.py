@@ -13,3 +13,11 @@ def walk_module(name):
         else:
             modules.append(import_module(sub_name))
     return modules
+
+
+class _Undefined:
+    def __bool__(self):
+        return False
+
+
+undefined = _Undefined()
