@@ -40,6 +40,7 @@ class Scheduler:
             self.wakeup()
 
     def start(self):
+        logger.info('Start')
         self._running = True
         self.wakeup()
 
@@ -72,7 +73,7 @@ class Scheduler:
 
             time_list.append(job.next_run_time)
 
-        return min([i - now for i in time_list])
+        return min([i - now for i in time_list], default=0)
 
     def wakeup(self):
         logger.info('Wakeup')

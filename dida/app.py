@@ -1,4 +1,5 @@
 import json
+import logging
 import threading
 import multiprocessing
 
@@ -103,6 +104,7 @@ def make_app(debug=False):
     from tornado.log import enable_pretty_logging
 
     enable_pretty_logging()
+    scheduler.start()
 
     static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'web'))
 
